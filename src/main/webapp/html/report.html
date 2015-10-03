@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Weather Api</title>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script type="text/javascript" src="http://www.datejs.com/build/date.js"></script>
+<script>
+$(document).ready(function () {
+    $("#city").change(function() {
+    	var data = "";
+    	$.ajax({
+            type:'GET',
+            url:'http://localhost:8080/WReport/rest/weather/report/'+$(this).val(),
+            data : "city_selectedvalue="+$(this).val(),
+            async: false,
+            dataType: "json",
+            success : function(response) {
+                data = response;
+               	var obj = JSON.parse(JSON.stringify(response));
+				var celcius = obj["main"].temp - 273.15;
+				var windSpeed = obj["wind"].speed * 3.6;
+				windSpeed = +windSpeed.toFixed(2);
+				celcius = +celcius.toFixed(0);
+				var myDate = new Date( obj.dt *1000);
+				var row = $("<tr border='1'/>")
+				 $("#personDataTable").append(row);
+				  row.append($("<td width='100' align='center'>" + obj.name + "</td>"));
+				  row.append($("<td width='100' nowrap align='center'>" + getWeekDay(myDate) + " " + myDate.toString("hh:mm tt") + "</td>"));
+				  row.append($("<td width='140' nowrap align='center'>" + obj.weather[0].description + "</td>"));
+				  row.append($("<td width='120' align='center'>" +celcius+" C"  + "</td>"));
+				  row.append($("<td width='150' align='left'>" + windSpeed + "km/h" + "</td>"));
+				$("#div1").html(row);
+				
+				return response;
+            },
+            error: function() {
+                alert('Error occured');
+            }
+         });
+    	
+    	return false;
+    });
+});
+
+function getWeekDay(myDate) {
+	var d = myDate;
+	var weekday = new Array(7);
+		weekday[0]=  "Sunday";
+		weekday[1] = "Monday";
+		weekday[2] = "Tuesday";
+		weekday[3] = "Wednesday";
+		weekday[4] = "Thursday";
+		weekday[5] = "Friday";
+		weekday[6] = "Saturday";
+	var n = weekday[d.getDay()];
+	
+	return n;
+}
+</script>
+</head>
+<body>
+<h2>Weather Report</h2>
+	<div>
+		<table>
+			<tr>
+				<td>Cities :</td>
+				<td>
+					<select id="city">
+						<option value=""> </option>
+						<option value="Sydney">Sydney </option>
+						<option value="Melbourne">Melbourne </option>
+						<option value="Wollongong">Wollongong </option>
+					</select>	
+				</td>
+			</tr>
+		</table>	
+	<table border=1 id="personDataTable"  style="width:40%">
+    <tr>
+        <th width="40">City</th>
+        <th width="70" nowrap>Updated Time</th>
+        <th width="40">Weather</th>
+		<th width="40">Temperature</th>
+		<th width="40">Wind</th>
+    </tr>  
+</table>
+		<div id="div1">
+			
+		</div>		
+
+	</div>
+</body>
+</html>
